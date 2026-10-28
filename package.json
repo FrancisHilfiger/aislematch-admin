@@ -1,0 +1,7 @@
+{
+  "name": "aislematch-admin",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": { "@supabase/supabase-js": "2.109.0" },
+  "devDependencies": { "esbuild": "^0.28.2" }
+}

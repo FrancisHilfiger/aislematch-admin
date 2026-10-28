@@ -1,0 +1,71 @@
+AISLE MATCH ADMIN CONSOLE  -  SETUP (about 15 minutes, once)
+================================================================
+
+EASY PATH: create an empty public GitHub repo named aislematch-admin, then run  sh setup.sh  from this folder.
+It does steps 1, 3 and 4 below for you. You then only do the SQL (step 2) and the Webflow page (step 5).
+
+What this is
+  A private admin console for Kass, Kerri and Chevvy. It runs at https://aislematch.com.au/admin
+  (a Webflow page that loads one script from GitHub, exactly like the vendor portal).
+  The browser never talks to your database directly. Everything goes through ONE secured
+  Supabase function called admin-api, which checks on the server that the person signed in
+  is on the admin list, then uses the service role to read and change data. Every change is
+  written to an audit log.
+
+STEP 1  Create the GitHub repo
+  - github.com -> New repository -> name: aislematch-admin -> Public -> Create.
+    (Public is needed so jsDelivr can serve the script. The script contains no secrets.
+     Your Supabase anon key is already public in the vendor portal.)
+  - In WSL:   cd ~ && unzip -o /mnt/c/bloom/<where you extracted>/aislematch-admin.zip -d ~/aislematch-admin
+              cd ~/aislematch-admin
+              git init && git branch -M main
+              git remote add origin https://github.com/FrancisHilfiger/aislematch-admin.git
+              npm install
+
+STEP 2  Run the SQL (Supabase dashboard -> SQL Editor -> New query)
+  - Paste the whole of sql/14_admin_console.sql and Run. Safe to run twice.
+    It creates the audit log, notes, reports and launch checklist tables, locked so only the
+    admin function can touch them.
+
+STEP 3  Set the admin list and deploy the function
+  - From the folder that holds your supabase/ project (~/bloom/bloom-app):
+      mkdir -p supabase/functions/admin-api
+      cp ~/aislematch-admin/supabase/functions/admin-api/index.ts supabase/functions/admin-api/index.ts
+      supabase secrets set ADMIN_EMAILS="kass@aislematch.com.au,kerri@aislematch.com.au,chevvy@aislematch.com.au"
+      supabase secrets set ALLOWED_ORIGINS="https://aislematch.com.au,https://www.aislematch.com.au"
+      supabase functions deploy admin-api --no-verify-jwt
+  - STRIPE_SECRET_KEY and RESEND_API_KEY are already set for your other functions. If the
+    System page says Stripe is not connected, set it:  supabase secrets set STRIPE_SECRET_KEY=sk_live_...
+  - Why --no-verify-jwt: the function checks the token itself and also checks the email is an
+    admin. Without that flag Supabase would reject the call before it runs.
+
+STEP 4  Release the script
+  - cd ~/aislematch-admin && sh release.sh 1.0.0
+    (first time git may ask you to log in. Same as the vendor portal.)
+  - Never reuse a version number. For every later change run sh release.sh 1.0.1, 1.0.2 ...
+    jsDelivr caches a tag forever.
+
+STEP 5  Webflow
+  - Create a page with the slug  admin  (https://aislematch.com.au/admin).
+  - Page settings -> turn OFF "Show in search" and add the noindex tag. Do not add it to the nav.
+  - Add one Embed element, paste the contents of webflow-embed.html, publish.
+  - If you want to keep the old /admin-login page, set it to noindex too, or delete it. It
+    only checked emails in the browser, which anyone can bypass, so retire it.
+
+STEP 6  First sign in
+  - Open https://aislematch.com.au/admin and sign in with your admin email and Supabase password.
+  - Go to System. Every line should say OK.  Search anything with Ctrl K (or /).
+
+IMPORTANT NOTES
+  - Admin access is decided by ADMIN_EMAILS on the server. To add or remove an admin change the
+    secret and redeploy:  supabase secrets set ADMIN_EMAILS="..."   (no new release needed).
+  - Turn on MFA for the three admin Supabase accounts if you can (Supabase Auth settings).
+    This console can reset passwords, issue refunds and delete accounts. Treat these logins
+    like the keys to the business.
+  - Apple in-app subscribers never appear in Stripe. The console shows them as "Apple or free"
+    with an estimate at list price. Check App Store Connect for real Apple income.
+  - Removing a photo removes it from the vendor profile. The file stays in Cloudinary.
+  - Deleting a sign-in account cannot be undone. A vendor with a live Stripe plan must be
+    cancelled first (the console blocks it otherwise).
+  - The directory loads everything in one call. It is quick up to a few thousand accounts. If
+    you grow past ~10,000 people ask me to add server-side paging.
