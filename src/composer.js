@@ -80,17 +80,24 @@ export function composer(o) {
     const withEmail = list.filter((m) => m.email)
     if (!withEmail.length) { toast('Nobody here has an email address', true); return }
     if (!(await confirmDialog({ title: `Email ${withEmail.length} people?`, body: `"${common.subject}" will be sent from ${from.value} to ${withEmail.length} people (${o.segmentLabel || 'selected'}).${unsubCount ? ' ' + unsubCount + ' who unsubscribed will be skipped.' : ''} This cannot be unsent. Have you sent yourself a test?`, confirmText: `Send to ${withEmail.length}` }))) return
-    let sent = 0, failed = 0, skipped = 0
+    let sent = 0, failed = 0, skipped = 0, already = 0, quota = false
     const campaignId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : undefined
     for (let i = 0; i < withEmail.length; i += 100) {
       status.textContent = `Sending… ${Math.min(i + 100, withEmail.length)} of ${withEmail.length}`
       try {
-        const r = await C.store.call('email_send', { ...common, recipients: withEmail.slice(i, i + 100), segment_label: o.segmentLabel, campaign_id: campaignId })
-        sent += r.sent; failed += r.failed; skipped += r.skipped_unsubscribed || 0
+        const r = await C.store.call('email_send', { ...common, recipients: withEmail.slice(i, i + 100), segment_label: o.segmentLabel, campaign_id: campaignId, skip_campaign_id: o.getSkip ? o.getSkip() : undefined })
+        sent += r.sent; failed += r.failed; skipped += r.skipped_unsubscribed || 0; already += r.skipped_already || 0
+        if (r.quota) { quota = true; break }
       } catch (e) { failed += Math.min(100, withEmail.length - i); status.textContent = 'Stopped: ' + e.message; toast(e.message, true); break }
     }
     C.store.invalidate('audit', 'waitlists', 'segments')
-    status.textContent = `Done. ${sent} sent${skipped ? ', ' + skipped + ' skipped (unsubscribed)' : ''}${failed ? ', ' + failed + ' failed' : ''}.`
+    if (quota) {
+      status.textContent = `Stopped: the email service sending limit was reached. ${sent} sent so far. Raise the limit, then send again with "Skip people already emailed" set to this campaign to finish the rest.`
+      toast('Sending limit reached. Sending stopped.', true)
+      o.onSent && o.onSent()
+      return
+    }
+    status.textContent = `Done. ${sent} sent${already ? ', ' + already + ' already emailed' : ''}${skipped ? ', ' + skipped + ' skipped (unsubscribed)' : ''}${failed ? ', ' + failed + ' failed' : ''}.`
     toast(`${sent} email${sent === 1 ? '' : 's'} sent${skipped ? ', ' + skipped + ' skipped (unsubscribed)' : ''}`, failed > 0)
     o.onSent && o.onSent()
   }

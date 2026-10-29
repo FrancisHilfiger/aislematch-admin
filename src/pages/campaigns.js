@@ -25,6 +25,8 @@ export async function renderCampaigns(C, view) {
   segments.forEach((s) => (groups[s.group] = groups[s.group] || []).push(s))
   Object.entries(groups).forEach(([g, list]) => { const og = h('optgroup', { label: g }); list.forEach((s) => og.appendChild(h('option', { value: s.id }, `${s.label} (${s.members.length})`))); sel.appendChild(og) })
   const host = h('div')
+  const skipSel = h('select', { class: 'select' }, h('option', { value: '' }, 'No, email everyone in the list'),
+    ...(stats.campaigns || []).slice(0, 30).map((c) => h('option', { value: c.id }, `${c.subject} · ${fmtDateTime(c.created_at)} (${c.sent} sent)`)))
   const pre = location.hash.split('/')[2]
   if (pre && segments.find((s) => s.id === pre)) sel.value = pre
   function paint() {
@@ -32,10 +34,10 @@ export async function renderCampaigns(C, view) {
     const s = segments.find((x) => x.id === sel.value)
     if (!s) { host.appendChild(empty('Pick an audience', 'Every list on the Audiences page can be emailed or pushed from here.')); return }
     host.appendChild(h('div', { class: 'tiny', style: { marginBottom: '12px' } }, s.desc))
-    host.appendChild(composer({ segment: s.id, segmentLabel: s.label, onSent: () => { C.store.audit(true).then(() => renderCampaigns(C, view)).catch(() => {}) } }))
+    host.appendChild(composer({ segment: s.id, segmentLabel: s.label, getSkip: () => skipSel.value || undefined, onSent: () => { C.store.audit(true).then(() => renderCampaigns(C, view)).catch(() => {}) } }))
   }
   sel.addEventListener('change', paint)
-  view.appendChild(card('New campaign', 'Send an email or an app notification to any audience. Always send yourself a test first.', null, h('div', null, field('Audience', sel), host)))
+  view.appendChild(card('New campaign', 'Send an email or an app notification to any audience. Always send yourself a test first.', null, h('div', null, field('Audience', sel), field('Skip people already emailed by', skipSel, 'Use this to finish a send that stopped part way. Anyone that campaign emailed successfully is left out.'), host)))
   paint()
 
   // ── Email performance ──
