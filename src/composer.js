@@ -81,10 +81,11 @@ export function composer(o) {
     if (!withEmail.length) { toast('Nobody here has an email address', true); return }
     if (!(await confirmDialog({ title: `Email ${withEmail.length} people?`, body: `"${common.subject}" will be sent from ${from.value} to ${withEmail.length} people (${o.segmentLabel || 'selected'}).${unsubCount ? ' ' + unsubCount + ' who unsubscribed will be skipped.' : ''} This cannot be unsent. Have you sent yourself a test?`, confirmText: `Send to ${withEmail.length}` }))) return
     let sent = 0, failed = 0, skipped = 0
+    const campaignId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : undefined
     for (let i = 0; i < withEmail.length; i += 100) {
       status.textContent = `Sending… ${Math.min(i + 100, withEmail.length)} of ${withEmail.length}`
       try {
-        const r = await C.store.call('email_send', { ...common, recipients: withEmail.slice(i, i + 100), segment_label: o.segmentLabel })
+        const r = await C.store.call('email_send', { ...common, recipients: withEmail.slice(i, i + 100), segment_label: o.segmentLabel, campaign_id: campaignId })
         sent += r.sent; failed += r.failed; skipped += r.skipped_unsubscribed || 0
       } catch (e) { failed += Math.min(100, withEmail.length - i); status.textContent = 'Stopped: ' + e.message; toast(e.message, true); break }
     }
