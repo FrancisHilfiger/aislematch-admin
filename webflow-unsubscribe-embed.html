@@ -1,0 +1,35 @@
+<!-- Webflow: create a page with the URL  /unsubscribe , add ONE Embed element, paste ALL of this, publish. -->
+<div id="am-unsub" style="min-height:70vh;display:flex;align-items:center;justify-content:center;padding:32px 16px;background:#EFE7DC;font-family:Helvetica,Arial,sans-serif;">
+  <div style="max-width:460px;width:100%;background:#FBF6F0;border-radius:20px;overflow:hidden;box-shadow:0 8px 30px rgba(54,36,28,.12);">
+    <div style="background:#36241C;padding:28px;text-align:center;"><img src="https://res.cloudinary.com/dw7kndjnv/image/upload/v1782650520/Untitled_design_48_n1o4xm.png" alt="Aisle Match" width="110" style="height:auto;"></div>
+    <div style="padding:32px 30px;text-align:center;color:#36241C;">
+      <h1 id="am-t" style="font-family:Georgia,serif;font-size:26px;margin:0 0 12px;">One moment</h1>
+      <p id="am-p" style="font-size:15px;line-height:1.6;margin:0 0 22px;color:#6B5C52;">Checking your link.</p>
+      <button id="am-b" style="display:none;background:#36241C;color:#FBF6F0;border:0;border-radius:12px;padding:14px 30px;font-size:15px;font-weight:700;cursor:pointer;"></button>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  var FN = 'https://mesfubazfwomxiwgbhek.supabase.co/functions/v1/unsubscribe';
+  var q = new URLSearchParams(location.search), e = q.get('e'), t = q.get('t');
+  var T = document.getElementById('am-t'), P = document.getElementById('am-p'), B = document.getElementById('am-b');
+  function call(action) {
+    return fetch(FN, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ e: e, t: t, action: action }) })
+      .then(function (r) { return r.json(); });
+  }
+  function show(state, mail) {
+    B.style.display = 'inline-block'; B.disabled = false;
+    if (state === 'out') {
+      T.textContent = 'You are unsubscribed'; P.textContent = mail + ' will no longer get marketing emails from Aisle Match. Important account messages, like password resets, can still reach you.';
+      B.textContent = 'Changed your mind? Resubscribe'; B.onclick = function () { B.disabled = true; call('resubscribe').then(function (d) { d.ok ? show('in', d.email) : fail(d); }); };
+    } else {
+      T.textContent = 'Unsubscribe?'; P.textContent = 'Stop marketing emails from Aisle Match to ' + mail + '.';
+      B.textContent = 'Unsubscribe'; B.onclick = function () { B.disabled = true; call('unsubscribe').then(function (d) { d.ok ? show('out', d.email) : fail(d); }); };
+    }
+  }
+  function fail(d) { T.textContent = 'This link is not working'; P.textContent = (d && d.error) || 'Please reply to the email and we will remove you by hand.'; B.style.display = 'none'; }
+  if (!e || !t) return fail({});
+  call('check').then(function (d) { d.ok ? show(d.unsubscribed ? 'out' : 'in', d.email) : fail(d); }).catch(function () { fail({}); });
+})();
+</script>
