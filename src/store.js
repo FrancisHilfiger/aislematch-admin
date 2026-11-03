@@ -51,6 +51,7 @@ export function makeStore(C) {
     activity: (force) => get('activity', 'activity', {}, force),
     stripe: (force) => get('stripe', 'stripe_overview', {}, force),
     audit: (force) => get('audit', 'audit_list', { limit: 1000 }, force),
+    referrals: (force) => get('referrals', 'referrals_list', {}, force),
     reports: (force) => get('reports', 'reports_list', {}, force),
     health: (force) => get('health', 'health', {}, force),
     // uncached reads

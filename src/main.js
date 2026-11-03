@@ -18,6 +18,7 @@ import { renderAnalytics } from './pages/analytics.js'
 import { renderCampaigns } from './pages/campaigns.js'
 import { renderAnnouncements } from './pages/announcements.js'
 import { renderAudit } from './pages/audit.js'
+import { renderReferrals } from './pages/referrals.js'
 import { renderLaunch } from './pages/launch.js'
 import { renderSystem } from './pages/system.js'
 
@@ -37,6 +38,7 @@ const PAGES = {
   photos: { label: 'Photo review', icon: 'img', sub: 'Every vendor photo in one place. Remove anything that should not be there.', render: renderPhotos },
   reports: { label: 'Reports', icon: 'flag', sub: 'Flagged content and website health.', render: renderReports },
   analytics: { label: 'Analytics', icon: 'chart', sub: 'Growth, engagement, geography and category supply.', render: renderAnalytics },
+  referrals: { label: 'Referrals', icon: 'link', sub: 'Who referred who, who is waiting on a first payment, and free months earned.', render: renderReferrals },
   campaigns: { label: 'Campaigns', icon: 'mail', sub: 'Email and push notifications to any audience.', render: renderCampaigns },
   announcements: { label: 'App popups', icon: 'bell', sub: 'Schedule a message that pops up once when people open the app.', render: renderAnnouncements },
   audit: { label: 'Audit log', icon: 'shield', sub: 'Every admin action: who, what, and when.', render: renderAudit },
@@ -48,7 +50,7 @@ const NAV = [
   ['People', ['vendors', 'couples', 'accounts', 'audiences', 'waitlist']],
   ['Money', ['subscriptions']],
   ['Marketplace', ['bookings', 'conversations', 'photos', 'reports']],
-  ['Growth', ['analytics', 'campaigns', 'announcements']],
+  ['Growth', ['analytics', 'referrals', 'campaigns', 'announcements']],
   ['Admin', ['audit', 'launch', 'system']],
 ]
 
