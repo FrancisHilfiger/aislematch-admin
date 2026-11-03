@@ -18,6 +18,7 @@ import { renderAnalytics } from './pages/analytics.js'
 import { renderCampaigns } from './pages/campaigns.js'
 import { renderAnnouncements } from './pages/announcements.js'
 import { renderAudit } from './pages/audit.js'
+import { mountGoals } from './goals.js'
 import { renderReferrals } from './pages/referrals.js'
 import { renderLaunch } from './pages/launch.js'
 import { renderSystem } from './pages/system.js'
@@ -178,9 +179,11 @@ function boot(cfg) {
         h('button', { class: 'signout', onclick: C.signOut }, 'Sign out')))
     const title = h('h1', null, ''), sub = h('div', { class: 'sub' }, '')
     const refreshBtn = h('button', { class: 'iconbtn', 'aria-label': 'Refresh data', title: 'Refresh data', onclick: async () => { refreshBtn.classList.add('spin'); C.store.clear(); await route(); loadBadges(); setTimeout(() => refreshBtn.classList.remove('spin'), 400) } }, icon('refresh'))
+    const goalsHost = h('div', { class: 'goalshost' })
     const top = h('header', { class: 'top' },
       h('button', { class: 'iconbtn burger', 'aria-label': 'Menu', onclick: () => { side.classList.add('open'); scrim.classList.remove('hidden') } }, icon('menu')),
       h('div', { class: 'grow' }, title, sub),
+      goalsHost,
       h('button', { class: 'searchbtn', onclick: openPalette, 'aria-label': 'Search' }, icon('search'), h('span', { class: 'lbl' }, 'Search people and businesses'), h('kbd', null, navigator.platform && /Mac/i.test(navigator.platform) ? '⌘K' : 'Ctrl K')),
       refreshBtn)
     const view = h('div', { class: 'content' })
@@ -189,6 +192,7 @@ function boot(cfg) {
     function closeSide() { side.classList.remove('open'); scrim.classList.add('hidden') }
     root.append(side, main, scrim)
     els = { side, main, title, sub, view }
+    setTimeout(() => { try { mountGoals(C, goalsHost, root) } catch (err) { console.error('[admin] goals', err) } }, 0)
   }
 
   async function loadBadges() {

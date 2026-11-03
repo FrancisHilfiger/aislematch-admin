@@ -362,3 +362,67 @@ table.t td.sel, table.t th.sel { width: 36px; padding-right: 0; }
 .pv-cta { border-radius: 12px; padding: 11px; font-size: 13px; font-weight: 700; margin-bottom: 8px; }
 .pv-close { font-size: 12px; color: #8d7f75; padding: 4px; }
 @media (max-width: 900px) { .ed-grid { grid-template-columns: minmax(0, 1fr); } .ed-side { position: static; } }
+
+/* ===== pretty scrollbars (goals40) ===== */
+.root *::-webkit-scrollbar { width: 12px; height: 12px; }
+.root *::-webkit-scrollbar-track { background: transparent; }
+.root *::-webkit-scrollbar-thumb { background: rgba(53,34,25,.20); border: 3px solid transparent; background-clip: content-box; border-radius: 999px; transition: background .15s; }
+.root *::-webkit-scrollbar-thumb:hover { background: rgba(53,34,25,.42); border: 3px solid transparent; background-clip: content-box; }
+.root *::-webkit-scrollbar-corner { background: transparent; }
+.side::-webkit-scrollbar { width: 10px; }
+.side::-webkit-scrollbar-thumb { background: rgba(251,248,243,.22); border: 3px solid transparent; background-clip: content-box; }
+.side::-webkit-scrollbar-thumb:hover { background: rgba(195,164,117,.7); border: 3px solid transparent; background-clip: content-box; }
+@supports not selector(::-webkit-scrollbar) {
+  .root * { scrollbar-width: thin; scrollbar-color: rgba(53,34,25,.3) transparent; }
+  .side { scrollbar-color: rgba(251,248,243,.3) transparent; }
+}
+
+/* ===== goals in the header ===== */
+.goalshost { flex: none; }
+.goalsbtn { display: flex; align-items: stretch; gap: 16px; padding: 8px 14px; border: 1px solid var(--line-s); border-radius: 14px; background: #fff; text-align: left; transition: border-color .15s, box-shadow .15s; }
+.goalsbtn:hover { border-color: var(--steel-d); box-shadow: var(--shadow); }
+.goalsbtn.gold { background: linear-gradient(135deg, #fff7e3, #f6e6bd); border-color: var(--gold); align-items: center; }
+.gtrophy { font-size: 18px; } .gall { font-weight: 700; color: var(--gold-d); font-size: 13px; }
+.gitem { display: flex; flex-direction: column; justify-content: center; gap: 5px; min-width: 112px; }
+.gtop { display: flex; justify-content: space-between; gap: 10px; font-size: 11.5px; line-height: 1; }
+.glabel { color: var(--muted); letter-spacing: .02em; }
+.gnum { font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+.gbar { display: block; height: 6px; border-radius: 99px; background: var(--ice); overflow: hidden; }
+.gbar.lg { height: 10px; margin: 8px 0 6px; }
+.gfill { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--steel-d), var(--ink)); transition: width .8s cubic-bezier(.2,.8,.2,1); }
+.gitem.done .gfill, .gcard.done .gfill { background: linear-gradient(90deg, var(--gold), var(--gold-d)); }
+.gclock { display: flex; flex-direction: column; justify-content: center; gap: 4px; padding-left: 16px; border-left: 1px solid var(--line); }
+.gclk-l { font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--faint); line-height: 1; }
+.gclk-v { font-size: 13px; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; line-height: 1; white-space: nowrap; }
+@media (max-width: 1240px) { .gclock { display: none; } }
+@media (max-width: 1060px) { .searchbtn .lbl { display: none; } .searchbtn { min-width: 0; } }
+@media (max-width: 860px) { .glabel { display: none; } .gitem { min-width: 64px; } .goalsbtn { padding: 8px 10px; gap: 10px; } }
+@media (max-width: 520px) { .goalshost { display: none; } }
+
+.gscrim { position: absolute; inset: 0; z-index: 400; background: rgba(44,29,21,.5); display: flex; align-items: center; justify-content: center; padding: 20px; animation: fade .15s; }
+.gmodal { width: min(520px, 100%); max-height: 92%; overflow-y: auto; background: #fff; border-radius: 22px; padding: 28px 28px 24px; box-shadow: 0 30px 80px rgba(44,29,21,.35); }
+.geyebrow { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold-d); margin-bottom: 4px; }
+.gh { font-family: var(--serif); font-size: 30px; font-weight: 700; margin-bottom: 14px; }
+.gcard { padding: 14px 16px; border: 1px solid var(--line); border-radius: 14px; margin-bottom: 10px; background: var(--cream); }
+.gcard.done { border-color: var(--gold); background: #fffaf0; }
+.gcrow { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.gcl { font-weight: 600; } .gcv { color: var(--muted); font-variant-numeric: tabular-nums; } .gcv b { font-family: var(--serif); font-size: 26px; color: var(--ink); }
+.gcs { font-size: 12.5px; color: var(--muted); }
+.gfoot { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; flex-wrap: wrap; }
+.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line-s); }
+.btn.ghost:hover { background: var(--cream); }
+
+/* ===== celebration ===== */
+.gcel { position: absolute; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; transition: opacity .35s; background: radial-gradient(circle at 50% 40%, rgba(44,29,21,.35), rgba(44,29,21,.7)); }
+.gcel.in { opacity: 1; }
+.gcanvas { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+.gcelcard { position: relative; z-index: 2; width: min(520px, 100%); text-align: center; background: linear-gradient(180deg, #fffdf8, #fbf8f3); border: 1px solid var(--gold); border-radius: 28px; padding: 34px 30px 28px; box-shadow: 0 0 0 6px rgba(195,164,117,.18), 0 40px 100px rgba(0,0,0,.45); animation: gpop .7s cubic-bezier(.2,1.4,.4,1) both; }
+.gcel-tr { font-size: 58px; line-height: 1; animation: gfloat 2.4s ease-in-out infinite; }
+.gcel-eb { margin-top: 8px; font-size: 11.5px; letter-spacing: .22em; text-transform: uppercase; color: var(--gold-d); }
+.gcel-h { font-family: var(--serif); font-style: italic; font-weight: 700; font-size: 46px; line-height: 1.05; margin: 6px 0 10px; color: var(--ink); }
+.gcel-big { font-family: var(--serif); font-weight: 700; font-size: 30px; line-height: 1.15; color: var(--gold-d); margin-bottom: 12px; }
+.gcel-p { color: var(--muted); font-size: 15px; line-height: 1.55; margin: 0 auto 20px; max-width: 400px; }
+.gcel-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+@keyframes gpop { 0% { transform: scale(.6) translateY(30px); opacity: 0; } 100% { transform: none; opacity: 1; } }
+@keyframes gfloat { 0%, 100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-8px) rotate(4deg); } }
+@media (prefers-reduced-motion: reduce) { .gcelcard, .gcel-tr { animation: none; } .gfill { transition: none; } }
