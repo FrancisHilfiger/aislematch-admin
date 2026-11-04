@@ -20,7 +20,7 @@ import { renderAnnouncements } from './pages/announcements.js'
 import { renderAudit } from './pages/audit.js'
 import { mountGoals } from './goals.js'
 import { renderReferrals } from './pages/referrals.js'
-import { renderLaunch } from './pages/launch.js'
+import { renderTasks } from './pages/tasks.js'
 import { renderSystem } from './pages/system.js'
 
 const LOGO = 'https://res.cloudinary.com/dw7kndjnv/image/upload/v1782650520/Untitled_design_48_n1o4xm.png'
@@ -43,7 +43,7 @@ const PAGES = {
   campaigns: { label: 'Campaigns', icon: 'mail', sub: 'Email and push notifications to any audience.', render: renderCampaigns },
   announcements: { label: 'App popups', icon: 'bell', sub: 'Schedule a message that pops up once when people open the app.', render: renderAnnouncements },
   audit: { label: 'Audit log', icon: 'shield', sub: 'Every admin action: who, what, and when.', render: renderAudit },
-  launch: { label: 'Launch checklist', icon: 'rocket', sub: 'The shared to-do list for the team.', render: renderLaunch },
+  launch: { label: 'Tasks', icon: 'list', sub: 'The shared team board. Drag to reorder, tick to complete. Everyone sees changes live.', render: renderTasks },
   system: { label: 'System', icon: 'gear', sub: 'Health checks, admins and quick lookups.', render: renderSystem },
 }
 const NAV = [

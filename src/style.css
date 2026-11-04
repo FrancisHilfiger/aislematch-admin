@@ -426,3 +426,45 @@ table.t td.sel, table.t th.sel { width: 36px; padding-right: 0; }
 @keyframes gpop { 0% { transform: scale(.6) translateY(30px); opacity: 0; } 100% { transform: none; opacity: 1; } }
 @keyframes gfloat { 0%, 100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-8px) rotate(4deg); } }
 @media (prefers-reduced-motion: reduce) { .gcelcard, .gcel-tr { animation: none; } .gfill { transition: none; } }
+
+/* ---- Tasks board ---- */
+.tk-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
+.tk-live { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ok); font-weight: 600; }
+.tk-live i { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 0 rgba(47,125,79,.5); animation: tkpulse 2s infinite; }
+.tk-live.off { color: var(--faint); } .tk-live.off i { background: var(--faint); animation: none; }
+@keyframes tkpulse { 70% { box-shadow: 0 0 0 7px rgba(47,125,79,0); } 100% { box-shadow: 0 0 0 0 rgba(47,125,79,0); } }
+.tk-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 14px 0; }
+.tk-chip { border: 1px solid var(--line-s); background: var(--paper); color: var(--ink); border-radius: 999px; padding: 5px 12px; font: inherit; font-size: 12.5px; cursor: pointer; }
+.tk-chip.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+.tk-chip.tag { border-color: transparent; }
+.tk-sep { width: 1px; height: 18px; background: var(--line-s); margin: 0 4px; }
+.tk-hide { margin-left: auto; font-size: 12.5px; color: var(--muted); display: inline-flex; gap: 6px; align-items: center; cursor: pointer; }
+.tk-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 16px; align-items: start; }
+.tk-col { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 14px; box-shadow: var(--shadow); }
+.tk-colhead { display: flex; align-items: baseline; justify-content: space-between; margin: 2px 4px 10px; }
+.tk-colhead h3 { font-family: var(--serif); font-size: 22px; margin: 0; font-weight: 600; }
+.tk-list { min-height: 56px; display: flex; flex-direction: column; gap: 8px; }
+.tk-empty { color: var(--faint); font-size: 12.5px; text-align: center; padding: 18px 8px; border: 1px dashed var(--line-s); border-radius: 12px; }
+.tk { display: flex; gap: 10px; align-items: flex-start; padding: 10px 10px 10px 6px; background: var(--cream); border: 1px solid var(--line); border-radius: 12px; transition: box-shadow .15s, opacity .15s; }
+.tk:hover { box-shadow: 0 4px 14px rgba(53,34,25,.08); }
+.tk input[type=checkbox] { margin-top: 3px; width: 17px; height: 17px; accent-color: var(--ink); flex-shrink: 0; }
+.tk-grip { cursor: grab; color: var(--steel-d); font-size: 14px; line-height: 1; padding: 4px 3px; letter-spacing: -2px; touch-action: none; user-select: none; }
+.tk-body { flex: 1; min-width: 0; }
+.tk-label { cursor: pointer; font-size: 14.5px; line-height: 1.35; word-break: break-word; }
+.tk.done .tk-label { text-decoration: line-through; opacity: .55; }
+.tk-notes { font-size: 12.5px; color: var(--muted); margin-top: 3px; white-space: pre-wrap; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.tk-meta { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; margin-top: 6px; }
+.tk-meta:empty { display: none; }
+.tk-tag { border: 0; border-radius: 999px; padding: 2px 9px; font: inherit; font-size: 11.5px; font-weight: 600; cursor: pointer; }
+.tk-due { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; color: var(--muted); }
+.tk-due svg { width: 12px; height: 12px; }
+.tk-due.over { color: var(--bad); font-weight: 600; }
+.tk-edit { opacity: 0; } .tk:hover .tk-edit, .tk:focus-within .tk-edit { opacity: 1; }
+@media (hover: none) { .tk-edit { opacity: 1; } }
+.tk-add { display: flex; gap: 8px; margin-top: 12px; }
+.tk-add .input { flex: 1; }
+.tk-dragging { opacity: .25; }
+.tk-ghost { position: fixed; z-index: 9999; pointer-events: none; box-shadow: 0 18px 40px rgba(53,34,25,.25); transform: rotate(1.5deg); background: #fff; }
+.tk.flash { animation: tkflash 1.6s ease-out; }
+@keyframes tkflash { 0% { background: var(--ice); box-shadow: 0 0 0 2px var(--steel-d); } 100% { background: var(--cream); box-shadow: none; } }
+.tk-tagedit { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
