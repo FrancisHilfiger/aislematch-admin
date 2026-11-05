@@ -30,8 +30,8 @@ function aiCell(x) {
     return h('div', null, pill(x.ai_expiry ? 'Read · ' + x.ai_confidence : 'No date found', x.ai_expiry && x.ai_confidence === 'high' ? 'ok' : 'warn', true),
       mismatch ? h('div', { class: 'tiny' }, 'AI saw ' + fmtDate(x.ai_expiry)) : null, nameMismatch(x) ? h('div', { class: 'tiny' }, 'Name differs') : null)
   }
-  if (x.ai_status === 'unreadable') return pill('Could not read', 'warn', true)
-  if (x.ai_status === 'failed') return pill('AI unavailable', '', true)
+  if (x.ai_status === 'unreadable') return h('div', { title: (x.ai_details && x.ai_details.error) || '' }, pill('Could not read', 'warn', true), h('div', { class: 'tiny' }, (x.ai_details && x.ai_details.error || '').slice(0, 60)))
+  if (x.ai_status === 'failed') return h('div', { title: (x.ai_details && x.ai_details.error) || '' }, pill('AI failed', 'bad', true), h('div', { class: 'tiny' }, (x.ai_details && x.ai_details.error || '').slice(0, 60)))
   return h('span', { class: 'faint' }, 'Not checked')
 }
 const stPill = (x) => {
@@ -82,6 +82,7 @@ export async function renderDocuments(C, view) {
     const notes = []
     if (nameMismatch(x)) notes.push(h('div', { class: 'note warn' }, `The name on the document ("${ai.holder_name}") does not match the business ("${x.business_name}"). Check it before verifying.`))
     if (x.ai_expiry && x.expires_on && x.ai_expiry !== x.expires_on) notes.push(h('div', { class: 'note warn' }, `The vendor entered ${fmtDate(x.expires_on)} but the AI read ${fmtDate(x.ai_expiry)} from the file.`))
+    if (ai.error) notes.push(h('div', { class: 'note warn' }, 'AI: ' + ai.error))
     if (ai.notes) notes.push(h('div', { class: 'note' }, 'AI note: ' + ai.notes))
     if (x.status === 'rejected' && x.reject_reason) notes.push(h('div', { class: 'note bad' }, 'Rejected: ' + x.reject_reason))
     const info = kv([
@@ -99,13 +100,13 @@ export async function renderDocuments(C, view) {
         field('Expiry date', exp, 'Check it against the document. Reminders go to the vendor 14 and 7 days before this date.'),
         field('Rejection reason', reason)),
       footer: [
-        btn('Re-read with AI', async () => { if (await run('Re-read', () => C.store.call('doc_reread', { document_id: x.id }))) { m.close(); renderDocuments(C, view) } }, 'ghost'),
+        btn('Re-read with AI', async () => { if (await run('Re-read', () => C.store.call('doc_reread', { document_id: x.id }))) { m.close(); C.refreshBadges && C.refreshBadges(); renderDocuments(C, view) } }, 'ghost'),
         btn('Reject', async () => {
           if (!reason.value.trim()) { reason.focus(); return }
-          if (await run('Rejected, vendor notified', () => C.store.act('doc_review', { document_id: x.id, decision: 'rejected', reason: reason.value.trim() }, ['audit']))) { m.close(); renderDocuments(C, view) }
+          if (await run('Rejected, vendor notified', () => C.store.act('doc_review', { document_id: x.id, decision: 'rejected', reason: reason.value.trim() }, ['audit']))) { m.close(); C.refreshBadges && C.refreshBadges(); renderDocuments(C, view) }
         }, 'ghost'),
         btn('Verify', async () => {
-          if (await run('Verified, vendor notified', () => C.store.act('doc_review', { document_id: x.id, decision: 'verified', expires_on: exp.value || null }, ['audit']))) { m.close(); renderDocuments(C, view) }
+          if (await run('Verified, vendor notified', () => C.store.act('doc_review', { document_id: x.id, decision: 'verified', expires_on: exp.value || null }, ['audit']))) { m.close(); C.refreshBadges && C.refreshBadges(); renderDocuments(C, view) }
         }, ''),
       ],
     })

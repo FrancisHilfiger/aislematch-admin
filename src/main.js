@@ -38,7 +38,7 @@ const PAGES = {
   bookings: { label: 'Leads & bookings', icon: 'cal', sub: 'Matches, unopened leads and bookings across the platform.', render: renderBookings },
   conversations: { label: 'Conversations', icon: 'chat', sub: 'Read-only moderation. Every thread you open is logged.', render: renderConversations },
   photos: { label: 'Photo review', icon: 'img', sub: 'Every vendor photo in one place. Remove anything that should not be there.', render: renderPhotos },
-  documents: { label: 'Documents', icon: 'shield', sub: 'Insurance, licences and certificates vendors have uploaded. Verify them and track expiry dates.', render: renderDocuments },
+  documents: { label: 'Documents', icon: 'folder', sub: 'Insurance, licences and certificates vendors have uploaded. Verify them and track expiry dates.', render: renderDocuments },
   reports: { label: 'Reports', icon: 'flag', sub: 'Flagged content and website health.', render: renderReports },
   analytics: { label: 'Analytics', icon: 'chart', sub: 'Growth, engagement, geography and category supply.', render: renderAnalytics },
   referrals: { label: 'Referrals', icon: 'link', sub: 'Who referred who, who is waiting on a first payment, and free months earned.', render: renderReferrals },
@@ -198,11 +198,14 @@ function boot(cfg) {
   }
 
   async function loadBadges() {
+    C.refreshBadges = loadBadges
+    if (!C._docPoll) C._docPoll = setInterval(() => { C.store.call('docs_pending_count', {}).then((r) => setBadge('documents', r.count, true)).catch(() => {}) }, 120000)
     try {
       const [d, r] = await Promise.all([C.store.directory(), C.store.reports().catch(() => ({ rows: [] }))])
       const pastDue = d.vendors.filter((v) => ['past_due', 'unpaid'].includes(v.derived.sub_state)).length
       const pending = (r.rows || []).filter((x) => x.status === 'pending').length
       setBadge('subscriptions', pastDue, true); setBadge('reports', pending, true)
+      C.store.call('docs_pending_count', {}).then((r) => setBadge('documents', r.count, true)).catch(() => {})
     } catch (e) { /* badges are best effort */ }
   }
   function setBadge(id, n, alert) {
