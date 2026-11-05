@@ -12,6 +12,7 @@ import { renderSubscriptions } from './pages/subscriptions.js'
 import { renderBookings } from './pages/bookings.js'
 import { renderConversations } from './pages/conversations.js'
 import { renderPhotos } from './pages/photos.js'
+import { renderDocuments } from './pages/documents.js'
 import { renderReports } from './pages/reports.js'
 import { renderWaitlist } from './pages/waitlist.js'
 import { renderAnalytics } from './pages/analytics.js'
@@ -37,6 +38,7 @@ const PAGES = {
   bookings: { label: 'Leads & bookings', icon: 'cal', sub: 'Matches, unopened leads and bookings across the platform.', render: renderBookings },
   conversations: { label: 'Conversations', icon: 'chat', sub: 'Read-only moderation. Every thread you open is logged.', render: renderConversations },
   photos: { label: 'Photo review', icon: 'img', sub: 'Every vendor photo in one place. Remove anything that should not be there.', render: renderPhotos },
+  documents: { label: 'Documents', icon: 'shield', sub: 'Insurance, licences and certificates vendors have uploaded. Verify them and track expiry dates.', render: renderDocuments },
   reports: { label: 'Reports', icon: 'flag', sub: 'Flagged content and website health.', render: renderReports },
   analytics: { label: 'Analytics', icon: 'chart', sub: 'Growth, engagement, geography and category supply.', render: renderAnalytics },
   referrals: { label: 'Referrals', icon: 'link', sub: 'Who referred who, who is waiting on a first payment, and free months earned.', render: renderReferrals },
@@ -50,7 +52,7 @@ const NAV = [
   ['', ['overview']],
   ['People', ['vendors', 'couples', 'accounts', 'audiences', 'waitlist']],
   ['Money', ['subscriptions']],
-  ['Marketplace', ['bookings', 'conversations', 'photos', 'reports']],
+  ['Marketplace', ['bookings', 'conversations', 'photos', 'documents', 'reports']],
   ['Growth', ['analytics', 'referrals', 'campaigns', 'announcements']],
   ['Admin', ['audit', 'launch', 'system']],
 ]
