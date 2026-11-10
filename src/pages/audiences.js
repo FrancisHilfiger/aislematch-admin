@@ -1,5 +1,7 @@
 import { h, clear, icon, ago, fmtDate, plural, cap } from '../lib.js'
-import { ctx, dataTable, card, pill, btn, empty, toast } from '../ui.js'
+import { ctx, dataTable, card, pill, btn, empty, toast, confirmDialog } from '../ui.js'
+import { run } from '../actions.js'
+import { openImport } from './import-list.js'
 import { openComposer } from '../composer.js'
 import { loading, seen, sortDate } from './shared.js'
 
@@ -11,6 +13,9 @@ export async function renderAudiences(C, view, parts) {
   if (sel && segments.find((s) => s.id === sel)) return showSegment(C, view, segments.find((s) => s.id === sel))
   const groups = {}
   segments.forEach((s) => (groups[s.group] = groups[s.group] || []).push(s))
+  view.appendChild(h('div', { class: 'row wrap', style: { marginBottom: '14px', justifyContent: 'space-between' } },
+    h('div', { class: 'muted small' }, 'Have a spreadsheet of contacts, like expo attendees? Import it and it appears below under Imported lists.'),
+    btn('Import a list', () => openImport(C, () => renderAudiences(C, view, parts)), '', 'plus')))
   Object.keys(groups).forEach((g) => {
     view.appendChild(h('h3', { class: 'sechead' }, g))
     view.appendChild(h('div', { class: 'grid g3' }, groups[g].map((s) => h('button', { class: 'stat', onclick: () => { location.hash = '#/audiences/' + s.id } },
@@ -25,6 +30,10 @@ function showSegment(C, view, seg) {
     h('div', { class: 'grow' }, h('h2', { style: { margin: 0, fontFamily: 'var(--serif)', fontSize: '26px' } }, seg.label), h('div', { class: 'muted small' }, seg.desc)),
     btn('Email everyone', () => openComposer('Email: ' + seg.label, { segment: seg.id, segmentLabel: seg.label, mode: 'email' }), '', 'mail'),
     btn('Push', () => openComposer('Push: ' + seg.label, { segment: seg.id, segmentLabel: seg.label, mode: 'push' }), 'ghost', 'bolt')))
+  if (seg.id.startsWith('list:')) view.appendChild(h('div', { class: 'row wrap', style: { marginBottom: '12px' } }, btn('Delete this list', async () => {
+    if (!(await confirmDialog({ title: 'Delete "' + seg.label + '"?', body: 'The list and its contacts are removed. Emails already sent stay in Campaigns.', danger: true, confirmText: 'Delete list' }))) return
+    const r = await run(null, () => C.store.call('contacts_delete_list', { list_id: seg.id.slice(5) })); if (r) { C.store.invalidate('segments'); toast('List deleted'); location.hash = '#/audiences' }
+  }, 'ghost sm', 'trash')))
   const rows = seg.members.map((m) => ({ ...m, id: m.key }))
   const t = dataTable({
     rows, search: (m) => `${m.name} ${m.email} ${m.business} ${m.state}`, searchPlaceholder: 'Search this list…', exportName: seg.id + '.csv', pageSize: 100, selectable: true, idOf: (m) => m.key,

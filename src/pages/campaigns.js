@@ -124,9 +124,22 @@ function openCampaign(C, c) {
       stat('Clicked', rate(c.clicked, d0), num(c.clicked) + ' people · ' + num(c.clicks_total) + ' clicks', { tone: 'ok' })))
     const pane = h('div', { style: { marginTop: '12px' } })
     const problems = d.recipients.filter((r) => ['bounced', 'complained', 'failed'].includes(r.status))
-    const items = [{ id: 'people', label: 'Recipients (' + d.recipients.length + ')' }, { id: 'links', label: 'Links (' + d.links.length + ')' }, { id: 'time', label: 'Timeline' }, { id: 'prob', label: 'Problems (' + problems.length + ')' }]
+    const items = [{ id: 'mail', label: 'The email' }, { id: 'people', label: 'Recipients (' + d.recipients.length + ')' }, { id: 'links', label: 'Links (' + d.links.length + ')' }, { id: 'time', label: 'Timeline' }, { id: 'prob', label: 'Problems (' + problems.length + ')' }]
     const show = (id) => {
       clear(pane)
+      if (id === 'mail') {
+        pane.appendChild(skelBlock(4))
+        C.store.call('email_campaign_html', { campaign_id: c.id }).then((r) => {
+          clear(pane)
+          if (!r.html) { pane.appendChild(empty('No copy saved', 'Campaigns sent before this update did not keep a copy of the email.')); return }
+          const frame = h('iframe', { class: 'mail-frame', title: 'Email as sent', sandbox: 'allow-popups allow-popups-to-escape-sandbox' })
+          frame.srcdoc = /<head[^>]*>/i.test(r.html) ? r.html.replace(/(<head[^>]*>)/i, '$1<base target="_blank">') : '<base target="_blank">' + r.html
+          const box = h('div', { class: 'mail-pv', 'data-device': 'desktop' }, h('div', { class: 'mail-inbox' }, h('b', null, r.from_name || 'Aisle Match'), h('span', { class: 'mail-subj' }, ' ' + (r.subject || ''))), frame)
+          const dev = (d) => () => box.setAttribute('data-device', d)
+          pane.append(h('div', { class: 'row', style: { justifyContent: 'space-between', marginBottom: '8px' } }, h('div', { class: 'tiny' }, 'Exactly as sent. Name and unsubscribe link are shown with sample details, each person got their own.'), h('div', { class: 'chips' }, h('button', { class: 'chip', type: 'button', onclick: dev('desktop') }, 'Desktop'), h('button', { class: 'chip', type: 'button', onclick: dev('phone') }, 'Phone'))), box)
+        }).catch((e) => { clear(pane); pane.appendChild(h('div', { class: 'note warn' }, e.message || 'Could not load the email')) })
+        return
+      }
       if (id === 'people') {
         pane.appendChild(dataTable({
           rows: d.recipients, pageSize: 25, search: (r) => r.to_email, searchPlaceholder: 'Search recipients…', exportName: 'campaign-recipients.csv', empty: 'No recipients recorded',
@@ -159,7 +172,7 @@ function openCampaign(C, c) {
           h('span', { class: 'tiny nowrap' }, fmtDateTime(r.last_event))))) : empty('No problems', 'Nobody bounced, reported spam or was refused.'))
       }
     }
-    body.append(tabs(items, 'people', show), pane)
-    show('people')
+    body.append(tabs(items, 'mail', show), pane)
+    show('mail')
   }).catch((e) => { clear(body); body.appendChild(h('div', { class: 'note warn' }, e.message || 'Could not load this campaign')) })
 }
